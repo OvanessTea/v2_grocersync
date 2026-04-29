@@ -1,0 +1,9 @@
+{
+  "name": "grocersync",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @grocersync/web dev",
+    "build:web": "pnpm --filter @grocersync/web build"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+*.tsbuildinfo
+AGENTS.md
+PLAN.md
+FIGMA_MAKE.md
+node_modules
+_tmp_*
