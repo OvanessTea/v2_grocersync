@@ -5,7 +5,7 @@ import { useDemo } from "../../app/demo-context";
 export function AuthScreen({ mode }: { mode: "signup" | "login" }) {
   const { session } = useDemo();
   const isSignup = mode === "signup";
-
+ // TODO: Add option to check password toggler
   return (
     <div className="screen screen--auth">
       <Card className="hero-card">

@@ -6,6 +6,7 @@ import { DemoProvider } from "./app/demo-context";
 import "./app/styles.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
+  // TODO: Remove all dev text
   <React.StrictMode>
     <BrowserRouter>
       <DemoProvider>

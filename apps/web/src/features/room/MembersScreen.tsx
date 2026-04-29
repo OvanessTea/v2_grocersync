@@ -3,7 +3,7 @@ import { Badge, Button, Card, SectionHeading } from "../../components/ui";
 
 export function MembersScreen() {
   const { members, role, transferOwnership } = useDemo();
-
+// TODO: Add note "First add ownership to another member"
   return (
     <div className="screen">
       <Card className="hero-card">
