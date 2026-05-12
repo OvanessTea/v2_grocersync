@@ -1,9 +1,12 @@
 import { Response } from "express";
-import crypto from "node:crypto";
 import config from "../config/config";
-import { invites } from "../models/invite";
-import { rooms } from "../models/room";
+import { prisma } from "../lib/prisma";
 import { AuthenticatedRequest } from "../types/auth";
+import {
+  createInviteToken,
+  getInviteExpiryDate,
+  hashInviteToken,
+} from "../utils/inviteToken";
 
 function sendError(
   res: Response,
@@ -20,15 +23,32 @@ function sendError(
   });
 }
 
-export function createRoomInvite(req: AuthenticatedRequest, res: Response) {
-  const roomId = req.params.roomId;
+function getSingleRouteParam(value: string | string[] | undefined) {
+  return typeof value === "string" ? value : null;
+}
+
+export async function createRoomInvite(
+  req: AuthenticatedRequest,
+  res: Response,
+) {
+  const roomId = getSingleRouteParam(req.params.roomId);
   const userId = req.user?.id ?? null;
+
+  if (!roomId) {
+    return sendError(res, 404, "NOT_FOUND", "Room not found");
+  }
 
   if (!userId) {
     return sendError(res, 401, "UNAUTHORIZED", "Authentication is required");
   }
 
-  const room = rooms.find((entry) => entry.id === roomId);
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+    select: {
+      id: true,
+      ownerId: true,
+    },
+  });
 
   if (!room) {
     return sendError(res, 404, "NOT_FOUND", "Room not found");
@@ -43,44 +63,44 @@ export function createRoomInvite(req: AuthenticatedRequest, res: Response) {
     );
   }
 
-  const activeInvite = invites.find(
-    (entry) =>
-      entry.roomId === room.id &&
-      !entry.revokedAt &&
-      (!entry.expiresAt || new Date(entry.expiresAt).getTime() > Date.now()),
-  );
+  const activeInvite = await prisma.roomInvite.findFirst({
+    where: {
+      roomId: room.id,
+      revokedAt: null,
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   if (activeInvite) {
-    room.inviteToken = activeInvite.token;
-
-    return res.json({
-      roomId: room.id,
-      token: activeInvite.token,
-      inviteUrl: `${config.appBaseUrl}/invites/${activeInvite.token}`,
-      expiresAt: activeInvite.expiresAt,
+    await prisma.roomInvite.update({
+      where: {
+        id: activeInvite.id,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
     });
   }
 
-  const token = crypto.randomBytes(24).toString("base64url");
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const token = createInviteToken();
+  const expiresAt = getInviteExpiryDate();
 
-  invites.push({
-    id: crypto.randomUUID(),
-    roomId: room.id,
-    token,
-    createdByUserId: userId,
-    createdAt: new Date().toISOString(),
-    expiresAt,
-    revokedAt: null,
+  await prisma.roomInvite.create({
+    data: {
+      roomId: room.id,
+      tokenHash: hashInviteToken(token),
+      createdByUserId: userId,
+      expiresAt,
+    },
   });
-
-  room.inviteToken = token;
 
   return res.status(201).json({
     roomId: room.id,
     token,
     inviteUrl: `${config.appBaseUrl}/invites/${token}`,
-    expiresAt,
+    expiresAt: expiresAt.toISOString(),
   });
 }
-
