@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RoomMembershipRole {
+  OWNER
+  MEMBER
+}
+
+model User {
+  id                String           @id @default(uuid())
+  email             String           @unique
+  passwordHash      String
+  displayName       String
+  isEmailVerified   Boolean          @default(false)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  ownedRooms        Room[]           @relation("RoomOwner")
+  memberships       RoomMembership[]
+  createdInvites    RoomInvite[]     @relation("InviteCreator")
+}
+
+model Room {
+  id           String           @id @default(uuid())
+  name         String
+  ownerId      String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  owner        User             @relation("RoomOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  memberships  RoomMembership[]
+  invites      RoomInvite[]
+
+  @@index([ownerId])
+}
+
+model RoomMembership {
+  id         String             @id @default(uuid())
+  roomId     String
+  userId     String
+  role       RoomMembershipRole
+  createdAt  DateTime           @default(now())
+  room       Room               @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+  @@index([userId])
+}
+
+model RoomInvite {
+  id              String    @id @default(uuid())
+  roomId          String
+  tokenHash       String    @unique
+  createdByUserId String
+  expiresAt       DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  room            Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  createdByUser   User      @relation("InviteCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+
+  @@index([roomId])
+  @@index([createdByUserId])
+}
