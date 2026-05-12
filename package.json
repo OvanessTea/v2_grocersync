@@ -4,6 +4,7 @@
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "dev:web": "pnpm --filter @grocersync/web dev",
+    "dev:api": "pnpm --filter @grocersync/api dev",
     "build:web": "pnpm --filter @grocersync/web build"
   }
 }
