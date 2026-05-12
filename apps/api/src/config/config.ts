@@ -3,11 +3,15 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const defaultDatabaseUrl =
+  "postgresql://postgres:postgres@localhost:5432/grocersync?schema=public";
+
 interface Config {
   port: number;
   nodeEnv: string;
   jwtSecret: string;
   appBaseUrl: string;
+  databaseUrl: string;
 }
 
 const config: Config = {
@@ -15,6 +19,7 @@ const config: Config = {
   nodeEnv: process.env.NODE_ENV || "development",
   jwtSecret: process.env.JWT_SECRET || "",
   appBaseUrl: process.env.APP_BASE_URL || "http://localhost:5173",
+  databaseUrl: process.env.DATABASE_URL || defaultDatabaseUrl,
 };
 
 if (!config.jwtSecret) {
