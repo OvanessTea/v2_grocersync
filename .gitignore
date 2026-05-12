@@ -7,3 +7,4 @@ PLAN.md
 FIGMA_MAKE.md
 node_modules
 _tmp_*
+*.env*
