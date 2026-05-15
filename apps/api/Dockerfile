@@ -20,4 +20,4 @@ RUN pnpm --filter @grocersync/api build
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "pnpm --dir apps/api exec prisma db push --schema prisma/schema.prisma && node apps/api/dist/index.js"]
+CMD ["sh", "-c", "pnpm --dir apps/api exec prisma db push --schema prisma/schema.prisma && exec node apps/api/dist/index.js"]

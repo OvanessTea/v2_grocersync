@@ -28,3 +28,8 @@ export const prisma =
 if (process.env.NODE_ENV !== "production") {
   globalThis.__grocerSyncPrisma__ = prisma;
 }
+
+export async function disconnectPrisma() {
+  await prisma.$disconnect();
+  await pool.end();
+}
