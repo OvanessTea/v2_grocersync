@@ -5,6 +5,8 @@
   "scripts": {
     "dev:web": "pnpm --filter @grocersync/web dev",
     "dev:api": "pnpm --filter @grocersync/api dev",
-    "build:web": "pnpm --filter @grocersync/web build"
+    "build:web": "pnpm --filter @grocersync/web build",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:dev:down": "docker-compose -f docker-compose.dev.yml down"
   }
 }
