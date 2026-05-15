@@ -10,17 +10,19 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
+    "dev": "nodemon -L --watch src --watch ../../packages/shared/src --watch prisma --ext ts,json --exec ts-node src/index.ts",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",
     "prisma:migrate:dev": "prisma migrate dev --schema prisma/schema.prisma"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
+    "pg": "^8.16.3",
     "prisma": "^7.8.0"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "@types/express-validator": "^3.0.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.12.4",
+    "@types/pg": "^8.15.5",
     "eslint": "^10.3.0",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.3",
